@@ -98,6 +98,10 @@ $(document).ready(function() {
     $('#seznam-uporabnikov').empty();
     for (var i=0; i < uporabniki.length; i++) {
       $('#seznam-uporabnikov').append(divElementEnostavniTekst(uporabniki[i]));
+      $('#seznam-uporabnikov div').click(function() {
+          var ime = $(this).text();
+          $('#poslji-sporocilo').val("\/zasebno \""+ime+"\" ");
+      });
     }
   });
 

@@ -117,6 +117,17 @@ $(document).ready(function() {
      dodajYouTubePovezave(sporocilo.besedilo);
   });
   
+  socket.on('dregljaj', function(dregljaj) {
+    // Initialize jRumble on Selector
+    $('#vsebina').jrumble();
+    // Start rumble on element
+    $('#vsebina').trigger('startRumble');
+    setTimeout(function() {
+      // Stop rumble on element
+      $('#vsebina').trigger('stopRumble');
+    },1500);
+  });
+  
   socket.on('kanali', function(kanali) {
     $('#seznam-kanalov').empty();
 

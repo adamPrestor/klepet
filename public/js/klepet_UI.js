@@ -22,10 +22,18 @@ function procesirajVnosUporabnika(klepetApp, socket) {
     if (sistemskoSporocilo) {
       $('#sporocila').append(divElementHtmlTekst(sistemskoSporocilo));
     }
+    //funkcija, da so nam slike vidne tudi ko posiljamo zasebna sporocila
+    var zasebno = sporocilo.split(' ');
+    if(zasebno[0] == '/zasebno') {
+      var parametri = sporocilo.split('\"');
+      dodajSlike(parametri[3]);
+    }
   } else {
     sporocilo = filtirirajVulgarneBesede(sporocilo);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
+    //funkcija, ki omogoca, da posiljatelj vidi slike ko posilja navadna sporocila
+    dodajSlike(sporocilo);
     $('#sporocila').scrollTop($('#sporocila').prop('scrollHeight'));
   }
 
@@ -52,6 +60,17 @@ function filtirirajVulgarneBesede(vhod) {
   return vhod;
 }
 
+//funkcija, ki isce linke na slikovne vsebine v sporocilu
+function dodajSlike(vhod) {
+  var arr = vhod.split(" ");
+  var imgRegex = /https?:\/\/.{1,}\.(png|jpg|gif)$/i;
+  for(var i = 0; i<arr.length; i++) {
+    if(imgRegex.test(arr[i])) {
+      $("#sporocila").append("<img src=\""+arr[i]+"\" style=\"width:200px;margin-left:20px\" alt=\""+arr[i]+"\" />");
+    }
+  }
+}
+
 $(document).ready(function() {
   var klepetApp = new Klepet(socket);
 
@@ -76,6 +95,8 @@ $(document).ready(function() {
   socket.on('sporocilo', function (sporocilo) {
     var novElement = divElementEnostavniTekst(sporocilo.besedilo);
     $('#sporocila').append(novElement);
+    //da so slike vidne tudi prejemniku sporocila
+     dodajSlike(sporocilo.besedilo);
   });
   
   socket.on('kanali', function(kanali) {

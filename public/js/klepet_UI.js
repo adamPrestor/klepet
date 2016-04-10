@@ -23,10 +23,12 @@ function procesirajVnosUporabnika(klepetApp, socket) {
       $('#sporocila').append(divElementHtmlTekst(sistemskoSporocilo));
     }
     //funkcija, da so nam slike vidne tudi ko posiljamo zasebna sporocila
+    //dodamo funkcionalnost, da so posnetki vidni ko posiljamo zasebna sporocila
     var zasebno = sporocilo.split(' ');
     if(zasebno[0] == '/zasebno') {
       var parametri = sporocilo.split('\"');
       dodajSlike(parametri[3]);
+      dodajYouTubePovezave(parametri[3]);
     }
   } else {
     sporocilo = filtirirajVulgarneBesede(sporocilo);
@@ -34,6 +36,8 @@ function procesirajVnosUporabnika(klepetApp, socket) {
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
     //funkcija, ki omogoca, da posiljatelj vidi slike ko posilja navadna sporocila
     dodajSlike(sporocilo);
+    //funkcionalnost, da so posnetki vidni ko posiljamo navadna sporocila
+    dodajYouTubePovezave(sporocilo);
     $('#sporocila').scrollTop($('#sporocila').prop('scrollHeight'));
   }
 
@@ -71,6 +75,18 @@ function dodajSlike(vhod) {
   }
 }
 
+//iskanje povezav na posnetke po besedilu
+function dodajYouTubePovezave(vhod) {
+ var arr = vhod.split(" ");
+ var ytRegex = /https?:\/\/www\.youtube\.com\/watch\?v=.{1,}$/i;
+ for(var i = 0; i<arr.length; i++) {
+    if(ytRegex.test(arr[i])) {
+        var video = arr[i].split("\?v=");
+        $("#sporocila").append("<iframe src=\"https://www.youtube.com/embed/"+video[1]+"\" style=\"width:200px;heigth:150px;margin-left:20px\" allowfullscreen></iframe>");
+    }
+ }
+}
+
 $(document).ready(function() {
   var klepetApp = new Klepet(socket);
 
@@ -97,6 +113,8 @@ $(document).ready(function() {
     $('#sporocila').append(novElement);
     //da so slike vidne tudi prejemniku sporocila
      dodajSlike(sporocilo.besedilo);
+     //funkcionalnost, da so posnetki vidni tudi prejemniku
+     dodajYouTubePovezave(sporocilo.besedilo);
   });
   
   socket.on('kanali', function(kanali) {
